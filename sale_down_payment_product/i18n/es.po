@@ -1,0 +1,34 @@
+# Translation of sale_down_payment_product for Odoo 19.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo 19.0\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: sale_down_payment_product
+#: model:ir.model.fields,field_description:sale_down_payment_product.field_res_company__sale_down_payment_product_id
+#: model:ir.model.fields,field_description:sale_down_payment_product.field_res_config_settings__sale_down_payment_product_id
+#: model_terms:ir.ui.view,arch_db:sale_down_payment_product.res_config_settings_view_form
+msgid "Down Payment Product"
+msgstr "Producto de anticipo"
+
+#. module: sale_down_payment_product
+#: model:ir.model.fields,help:sale_down_payment_product.field_res_company__sale_down_payment_product_id
+#: model:ir.model.fields,help:sale_down_payment_product.field_res_config_settings__sale_down_payment_product_id
+msgid "Product assigned to new percentage and fixed-amount down payments. Leave empty to use Odoo's standard behavior without a product."
+msgstr "Producto asignado a los nuevos anticipos por porcentaje e importe fijo. Déjelo vacío para usar el comportamiento estándar de Odoo sin producto."
+
+#. module: sale_down_payment_product
+#: model_terms:ir.ui.view,arch_db:sale_down_payment_product.res_config_settings_view_form
+msgid "Assign a product to percentage and fixed-amount down payments. Odoo keeps the order's tax and accounting calculations."
+msgstr "Asigne un producto a los anticipos por porcentaje e importe fijo. Odoo conserva los cálculos fiscales y contables del pedido."
+
+#. module: sale_down_payment_product
+#. odoo-python
+#: code:addons/sale_down_payment_product/models/res_company.py:0
+#, python-format
+msgid "The down payment product for %(company)s must be an active, saleable service invoiced on ordered quantities, shared or belonging to that company. Update it in Sales > Configuration > Settings."
+msgstr "El producto de anticipo de %(company)s debe ser un servicio activo, disponible para venta y facturado por cantidades pedidas, compartido o perteneciente a esa compañía. Actualícelo en Ventas > Configuración > Ajustes."

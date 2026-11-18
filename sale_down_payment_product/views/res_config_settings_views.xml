@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.sale.down.payment.product</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='invoicing_setting_container']" position="inside">
+                <setting id="sale_down_payment_product_setting"
+                         string="Down Payment Product"
+                         company_dependent="1"
+                         help="Assign a product to percentage and fixed-amount down payments. Odoo keeps the order's tax and accounting calculations.">
+                    <field name="sale_down_payment_product_id"
+                           domain="[('type', '=', 'service'), ('invoice_policy', '=', 'order'), ('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"
+                           context="{'default_type': 'service', 'default_invoice_policy': 'order', 'default_sale_ok': True, 'default_purchase_ok': False}"
+                           options="{'no_quick_create': True}"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

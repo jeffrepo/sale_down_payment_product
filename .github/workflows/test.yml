@@ -1,0 +1,54 @@
+name: Odoo 19 tests
+
+on:
+  push:
+    branches: ["19.0"]
+  pull_request:
+    branches: ["19.0"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U odoo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install module and run integration tests
+        shell: bash
+        run: |
+          set -o pipefail
+          docker run --rm --network host \
+            -v "$GITHUB_WORKSPACE:/mnt/extra-addons:ro" \
+            odoo:19.0 odoo \
+            --db_host=127.0.0.1 --db_port=5432 \
+            --db_user=odoo --db_password=odoo \
+            --database=down_payment_product_test \
+            --init=sale_down_payment_product \
+            --without-demo \
+            --test-enable --test-tags=/sale_down_payment_product \
+            --stop-after-init --http-port=8071 \
+            2>&1 | tee odoo-tests.log
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: odoo-19-test-log
+          path: odoo-tests.log
+          retention-days: 7
