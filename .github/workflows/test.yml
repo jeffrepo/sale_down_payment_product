@@ -35,7 +35,7 @@ jobs:
         run: |
           set -o pipefail
           docker run --rm --network host --entrypoint odoo \
-            -v "$GITHUB_WORKSPACE:/mnt/extra-addons:ro" \
+            -v "$GITHUB_WORKSPACE:/mnt/extra-addons/sale_down_payment_product:ro" \
             odoo:19.0 \
             --db_host=127.0.0.1 --db_port=5432 \
             --db_user=odoo --db_password=odoo \
@@ -45,6 +45,16 @@ jobs:
             --test-enable --test-tags=/sale_down_payment_product \
             --stop-after-init --http-port=8071 \
             2>&1 | tee odoo-tests.log
+      - name: Verify Website is not installed
+        env:
+          POSTGRES_SERVICE_ID: ${{ job.services.postgres.id }}
+        shell: bash
+        run: |
+          website_module_state="$(docker exec "$POSTGRES_SERVICE_ID" \
+            psql -U odoo -d down_payment_product_test -Atc \
+            "SELECT state FROM ir_module_module WHERE name = 'website'")"
+          echo "Website module state: $website_module_state"
+          test "$website_module_state" = "uninstalled"
       - name: Upload test log
         if: always()
         uses: actions/upload-artifact@v4

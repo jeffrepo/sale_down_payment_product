@@ -9,14 +9,35 @@ extiende la preparación de las líneas de anticipo mediante herencia de Odoo.
 
 ## Instalación
 
-1. Clonar la rama `19.0` de este repositorio en el servidor de Odoo.
-2. Añadir la carpeta del repositorio a `addons_path`. El módulo instalable está
-   en la subcarpeta `sale_down_payment_product/`.
+1. Clonar la rama `19.0` de este repositorio en una carpeta llamada
+   `sale_down_payment_product` dentro del directorio de módulos personalizados.
+2. Añadir el directorio **padre** a `addons_path`. `__manifest__.py` y
+   `__init__.py` están directamente en la raíz del repositorio, junto a las
+   carpetas internas del módulo (`models`, `views`, `i18n` y `tests`).
 3. Reiniciar Odoo, actualizar la lista de aplicaciones e instalar
    **Sales Down Payment Product** (`sale_down_payment_product`). Si se busca en
    Aplicaciones, quitar el filtro «Aplicaciones», ya que es un módulo técnico.
 
-Requiere Odoo **19.0** y `sale_management` (Ventas). No utiliza código Enterprise.
+Requiere Odoo **19.0**. Su única dependencia directa es el módulo técnico `sale`.
+Está pensado para una base que ya utiliza la aplicación Ventas. No utiliza
+código Enterprise ni requiere la aplicación Website.
+
+Si se actualiza desde la estructura anterior, el manifiesto debe quedar en
+`sale_down_payment_product/__manifest__.py`, sin otra carpeta del mismo nombre
+en su interior. Reiniciar Odoo, actualizar la lista de aplicaciones y actualizar
+este módulo; no es necesario desinstalarlo ni perder su configuración.
+
+## Dependencias web
+
+Odoo utiliza módulos técnicos como `web` y `portal` para su interfaz y el portal
+de clientes. Esos módulos son diferentes de la aplicación **Sitio web**
+(`website`). El campo `website` del manifiesto solo contiene el enlace al
+repositorio; no instala la aplicación.
+
+La prueba de instalación en una base vacía comprueba expresamente que `website`
+permanezca en estado `uninstalled`. Si ya está instalado en una base existente,
+actualizar este módulo no lo desinstala. Identificar qué lo instaló requiere
+revisar el registro de instalación y los módulos de esa base.
 
 ## Configuración y uso
 
@@ -61,7 +82,8 @@ activa al abrir el asistente. La interfaz incluye traducción al español.
 
 La integración continua en GitHub Actions instala el módulo en la imagen oficial
 `odoo:19.0`, con PostgreSQL 16, y ejecuta sus pruebas de integración. El registro
-se conserva como artefacto de cada ejecución.
+se conserva como artefacto de cada ejecución. Además, se comprueba que la
+instalación limpia no instale la aplicación Website.
 
 Cobertura: porcentaje, monto fijo, deducción final, publicación de facturas,
 impuestos mixtos e incluidos en el precio, redondeo, cuentas y posición fiscal,
@@ -76,8 +98,8 @@ odoo --database=down_payment_product_test \
   --without-demo --stop-after-init
 ```
 
-La ruta del repositorio debe estar incluida en `addons_path`. Añadir las opciones
-de conexión a PostgreSQL propias del entorno.
+El directorio padre del repositorio debe estar incluido en `addons_path`. Añadir
+las opciones de conexión a PostgreSQL propias del entorno.
 
 ## Licencia
 
