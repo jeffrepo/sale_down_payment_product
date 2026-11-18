@@ -2,11 +2,11 @@ from odoo import Command, fields
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.sale.tests.common import TestSaleCommon
 
 
 @tagged("post_install", "-at_install")
-class TestDownPaymentProduct(AccountTestInvoicingCommon):
+class TestDownPaymentProduct(TestSaleCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -29,13 +29,25 @@ class TestDownPaymentProduct(AccountTestInvoicingCommon):
             "property_account_income_id": cls.company_data["default_account_revenue"].id,
             "taxes_id": [Command.set(cls.tax.ids)],
         })
-        cls.advance_product = cls.sale_product.copy({
+        cls.advance_product = cls._create_advance_product()
+        cls.company.sale_down_payment_product_id = cls.advance_product
+
+    @classmethod
+    def _create_advance_product(cls, company=None, **values):
+        # Create variants explicitly: product.product.copy() delegates to the
+        # template and inherits the create_product_product context from create().
+        return cls.env["product.product"].with_company(company or cls.company).create({
             "name": "Anticipo de clientes",
+            "type": "service",
+            "invoice_policy": "order",
+            "sale_ok": True,
             "list_price": 9999.0,
+            "categ_id": cls.product_category.id,
             "property_account_income_id": cls.company_data["default_account_expense"].id,
             "taxes_id": [Command.set(cls.product_tax.ids)],
+            "supplier_taxes_id": [Command.clear()],
+            **values,
         })
-        cls.company.sale_down_payment_product_id = cls.advance_product
 
     def _new_order(self, taxes=None, company=None, extra_lines=None, **values):
         company = company or self.company
@@ -207,7 +219,7 @@ class TestDownPaymentProduct(AccountTestInvoicingCommon):
         order = self._new_order()
         first = self._invoice(order, "fixed", 112.0)
         self._post(first)
-        other_product = self.advance_product.copy({"name": "New advance product"})
+        other_product = self._create_advance_product(name="New advance product")
         self.company.sale_down_payment_product_id = other_product
         second = self._invoice(order, "fixed", 224.0)
         self._assert_product(second, other_product)
@@ -236,7 +248,7 @@ class TestDownPaymentProduct(AccountTestInvoicingCommon):
             {"active": False},
         ):
             with self.subTest(values=values):
-                product = self.advance_product.copy(values)
+                product = self._create_advance_product(**values)
                 with self.assertRaises(ValidationError), self.cr.savepoint():
                     self.company.sale_down_payment_product_id = product
 
@@ -253,7 +265,7 @@ class TestDownPaymentProduct(AccountTestInvoicingCommon):
     def test_order_company_determines_product(self):
         other_data = self.setup_other_company(name="Second company")
         other_company = other_data["company"]
-        other_product = self.advance_product.with_company(other_company).copy({
+        other_product = self._create_advance_product(company=other_company, **{
             "name": "Second company advances",
             "company_id": other_company.id,
             "taxes_id": [Command.clear()],
